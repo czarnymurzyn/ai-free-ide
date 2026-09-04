@@ -1,4 +1,7 @@
+
 # AI-Free IDE
+
+<img width="1043" height="131" alt="image" src="https://github.com/user-attachments/assets/5653a223-4211-4716-9954-3e15f4a5d4ed" />
 
 A modern code editor for Linux that **makes no network connections** and
 **contains no AI features**.
