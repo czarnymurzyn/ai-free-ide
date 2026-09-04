@@ -1,0 +1,137 @@
+.lsp-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+}
+
+.lsp-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.lsp-panel__refresh {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+}
+
+.lsp-panel__refresh:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.lsp-panel__empty {
+  padding: 6px 14px 16px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.lsp-panel__empty p {
+  margin: 0 0 10px;
+}
+
+.lsp-panel__hint {
+  font-size: 11.5px;
+  opacity: 0.85;
+}
+
+.lsp-panel__empty code {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--bg-elevated);
+  padding: 1px 4px;
+  border-radius: var(--radius-sm);
+}
+
+.lsp-panel__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.lsp-server {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.lsp-server__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lsp-server__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--text-muted);
+}
+
+.lsp-server__dot--running { background: var(--success); }
+.lsp-server__dot--starting { background: var(--warning); }
+.lsp-server__dot--failed { background: var(--danger); }
+.lsp-server__dot--inactive { background: var(--border-strong); }
+
+.lsp-server__label {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  color: var(--text-primary);
+}
+
+.lsp-server__state {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.lsp-server__meta {
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+.lsp-server__languages {
+  margin-top: 3px;
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.lsp-server__detail {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--danger);
+  user-select: text;
+}
+
+.lsp-server__restart {
+  margin-top: 6px;
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.lsp-server__restart:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}

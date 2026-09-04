@@ -1,0 +1,130 @@
+.editor-area {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.editor-area__divider {
+  width: 1px;
+  background: var(--border-default);
+  flex-shrink: 0;
+}
+
+.editor-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.tab-bar {
+  display: flex;
+  align-items: stretch;
+  height: var(--tab-height);
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.editor-group--focused .tab-bar {
+  border-bottom-color: var(--border-default);
+}
+
+.tab-bar__tabs {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tab-bar__tabs::-webkit-scrollbar {
+  height: 0;
+}
+
+.tab-bar__action {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  color: var(--text-muted);
+  border-left: 1px solid var(--border-subtle);
+}
+
+.tab-bar__action:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 200px;
+  min-width: 0;
+  padding: 0 8px 0 12px;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 12.5px;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.tab:hover {
+  background: var(--bg-hover);
+}
+
+.tab--active {
+  background: var(--bg-app);
+  color: var(--text-primary);
+}
+
+/* The accent rule sits on top so it reads as the selected tab. */
+.tab--active::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: var(--accent);
+}
+
+.tab__name {
+  min-width: 0;
+}
+
+.tab__close {
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  flex-shrink: 0;
+  /* Reserve the space so the label does not shift when the icon appears. */
+  opacity: 0;
+}
+
+.tab:hover .tab__close,
+.tab--active .tab__close,
+.tab__close--dirty {
+  opacity: 1;
+}
+
+.tab__close:hover {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+.tab__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+}
+
+.tab__close--dirty:hover .tab__dot {
+  background: var(--danger);
+}

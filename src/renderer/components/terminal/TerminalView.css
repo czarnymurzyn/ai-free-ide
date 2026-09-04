@@ -1,0 +1,88 @@
+.terminal-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.terminal-view__tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 6px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.terminal-view__tabs::-webkit-scrollbar {
+  height: 0;
+}
+
+.terminal-view__tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 160px;
+  padding: 3px 7px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  flex-shrink: 0;
+}
+
+.terminal-view__tab:hover {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.terminal-view__tab--active {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+.terminal-view__kill {
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.terminal-view__kill:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+.terminal-view__add {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.terminal-view__add:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.terminal-instance {
+  flex: 1;
+  min-height: 0;
+  padding: 4px 0 4px 8px;
+  /* The terminal is one of the two places text selection is wanted. */
+  user-select: text;
+}
+
+.terminal-instance .xterm {
+  height: 100%;
+}
+
+.terminal-instance .xterm-viewport {
+  background: transparent !important;
+}

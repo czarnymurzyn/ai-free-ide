@@ -1,0 +1,61 @@
+appId: dev.local.ai-free-ide
+productName: AI-Free IDE
+copyright: MIT
+
+directories:
+  output: release
+  buildResources: resources
+
+files:
+  - out/**/*
+  - package.json
+  - '!**/*.map'
+
+# node-pty ships a compiled .node binary. Anything native must live outside the
+# asar archive, or dlopen cannot load it at runtime.
+asarUnpack:
+  - '**/node_modules/node-pty/**'
+
+linux:
+  target:
+    - AppImage
+    - deb
+  category: Development
+  synopsis: A fully offline code editor with no AI features
+  description: >-
+    A modern IDE for Linux that makes no network connections and contains no AI
+    features. Editing, an integrated terminal, project-wide search, Git and
+    language intelligence, all sourced from your own machine.
+  desktop:
+    entry:
+      Name: AI-Free IDE
+      Comment: Offline code editor
+      Categories: Development;IDE;TextEditor;
+      Keywords: editor;code;ide;offline;
+      MimeType: text/plain;text/x-csrc;text/x-c++src;text/x-python;application/json;text/markdown;
+      StartupWMClass: ai-free-ide
+      # Prefer native Wayland where the compositor supports it; Electron falls
+      # back to XWayland on its own when it does not.
+      Exec: ai-free-ide --ozone-platform-hint=auto %F
+
+deb:
+  depends:
+    - libgtk-3-0
+    - libnotify4
+    - libnss3
+    - libxss1
+    - libxtst6
+    - xdg-utils
+    - libatspi2.0-0
+    - libsecret-1-0
+  # git and ripgrep are used when present and degrade gracefully when absent,
+  # so they are recommended rather than required.
+  recommends:
+    - git
+    - ripgrep
+
+appImage:
+  artifactName: ${productName}-${version}-${arch}.AppImage
+
+# There is no update server, and there never will be one.
+publish: null

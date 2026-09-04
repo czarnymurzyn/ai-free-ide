@@ -1,0 +1,79 @@
+.monaco-host {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+.monaco-host__container {
+  position: absolute;
+  inset: 0;
+}
+
+.monaco-host__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: var(--bg-app);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.monaco-host__placeholder-title {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.monaco-host__hints {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  font-size: 12.5px;
+}
+
+.monaco-host__hints li {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+kbd {
+  display: inline-block;
+  min-width: 18px;
+  padding: 1px 5px;
+  border: 1px solid var(--border-default);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-align: center;
+}
+
+/* Git gutter marks, applied by MonacoHost's decorations collection. */
+.git-gutter {
+  width: 3px !important;
+  margin-left: 3px;
+}
+
+.git-gutter--added {
+  background: var(--git-added);
+}
+
+.git-gutter--modified {
+  background: var(--git-modified);
+}
+
+.git-gutter--deleted {
+  background: var(--git-deleted);
+  /* A deletion has no lines of its own; show it as a wedge at the boundary. */
+  height: 4px !important;
+}

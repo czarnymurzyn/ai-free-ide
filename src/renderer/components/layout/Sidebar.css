@@ -1,0 +1,61 @@
+.sidebar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.sidebar__header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px;
+  flex-shrink: 0;
+}
+
+.sidebar__title {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.sidebar__subtitle {
+  min-width: 0;
+  font-size: 11px;
+  color: var(--text-muted);
+  opacity: 0.75;
+}
+
+.sidebar__body {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  /* A backstop: no panel may paint outside the sidebar and swallow clicks
+     meant for the editor. The resizer sits outside this element so it is
+     not clipped. */
+  overflow: hidden;
+}
+
+.sidebar__resizer {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 5;
+}
+
+.sidebar__resizer:hover {
+  background: var(--accent);
+  opacity: 0.3;
+}

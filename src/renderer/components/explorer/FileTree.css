@@ -1,0 +1,98 @@
+.file-tree {
+  flex: 1;
+  overflow: auto;
+  padding-bottom: 8px;
+}
+
+.file-tree__row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding-right: 8px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.file-tree__row:hover {
+  background: var(--bg-hover);
+}
+
+.file-tree__row--selected {
+  background: var(--bg-active);
+}
+
+.file-tree__row--active {
+  background: var(--bg-selected);
+  color: var(--text-primary);
+}
+
+.file-tree__chevron {
+  width: 13px;
+  height: 13px;
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.file-tree__icon {
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.file-tree__row--active .file-tree__icon,
+.file-tree__row:hover .file-tree__icon {
+  color: var(--text-secondary);
+}
+
+.file-tree__name {
+  min-width: 0;
+}
+
+/* Git status colours the label, matching the source-control panel. */
+.file-tree__name--modified {
+  color: var(--git-modified);
+}
+
+.file-tree__name--added {
+  color: var(--git-added);
+}
+
+.file-tree__name--deleted {
+  color: var(--git-deleted);
+  text-decoration: line-through;
+}
+
+.file-tree__name--untracked {
+  color: var(--git-added);
+}
+
+.file-tree__name--conflicted {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.file-tree__empty {
+  padding: 16px 14px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+}
+
+.file-tree__open-button {
+  margin-top: 10px;
+  width: 100%;
+  padding: 6px 10px;
+  background: var(--accent);
+  color: var(--text-inverse);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+
+.file-tree__open-button:hover {
+  background: var(--accent-hover);
+}

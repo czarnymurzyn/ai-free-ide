@@ -1,0 +1,23 @@
+node_modules/
+out/
+release/
+dist/
+
+# Playwright artifacts
+test-results/
+playwright-report/
+blob-report/
+
+*.log
+npm-debug.log*
+
+.DS_Store
+*.swp
+*~
+
+# Editor-local settings, not the app's own settings.json (which lives in
+# ~/.config/ai-free-ide).
+.vscode/
+.idea/
+
+*.tsbuildinfo
