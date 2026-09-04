@@ -19,11 +19,11 @@ all sourced from your own machine.
 | | |
 |---|---|
 | **Editor** | Monaco, with syntax highlighting for ~90 languages, multi-cursor, folding, minimap, bracket colouring, sticky scroll |
-| **Files** | Tree with create/rename/delete (to trash) and reveal, live-updating from an inotify watcher |
-| **Tabs & splits** | Two editor groups, per-file undo history and scroll position preserved across tab switches |
+| **Files** | Tree with a real context menu, inline create and rename, delete to trash, live-updating from an inotify watcher |
+| **Tabs & splits** | Two editor groups, breadcrumbs, tab context menu, per-file undo history and scroll position preserved across tab switches |
 | **Terminal** | Real PTYs running your login shell — `htop`, `vim` and `less` behave normally |
 | **Search** | Project-wide find and replace via ripgrep, streamed as it runs |
-| **Git** | Status, gutter marks, stage/unstage, diff, commit, amend, branches, log, stash |
+| **Git** | Status, gutter marks, stage/unstage, commit, amend, branches, log, stash, and a side-by-side or inline diff against HEAD |
 | **Intelligence** | Go-to-definition, hover, completion, rename, references, formatting, code actions, diagnostics — from language servers already on your `PATH` |
 | **Workbench** | Command palette, quick-open, keybindings, JSON settings, dark and light themes, session restore |
 
@@ -169,15 +169,19 @@ Two details worth knowing before changing things:
 ## Tests
 
 ```bash
-npm test        # typecheck + unit + offline audit
-npm run test:e2e   # 26 Playwright tests against the built Electron app
+npm test           # typecheck + 45 unit tests + offline audit
+npm run test:e2e   # 41 Playwright tests against the built Electron app
 npm run test:all   # everything
 ```
 
 The e2e suite covers real behaviour, not mocks: it edits a file and checks the
-bytes on disk, commits and reads `git log`, drives a real
-`typescript-language-server` to produce and clear a genuine type error, and
-asserts from inside the live renderer that `fetch` and `WebSocket` fail.
+bytes on disk, renames through the tree and reads the directory back, commits
+and reads `git log`, drives a real `typescript-language-server` to produce and
+clear a genuine type error, and asserts from inside the live renderer — both
+unpackaged and in the packaged binary — that `fetch` and `WebSocket` fail.
+
+`tests/e2e/packaged.spec.ts` needs `npm run pack:dir` first; it skips itself
+otherwise.
 
 ## License
 

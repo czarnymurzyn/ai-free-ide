@@ -19,6 +19,15 @@
   min-height: 0;
 }
 
+/* Holds the text editor and, when one is open, the diff stacked on top. */
+.editor-group__body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+}
+
 .tab-bar {
   display: flex;
   align-items: stretch;
@@ -91,8 +100,25 @@
   background: var(--accent);
 }
 
+.tab__icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  /* Dim the icon on inactive tabs so the active one reads first. */
+  opacity: 0.65;
+}
+
+.tab--active .tab__icon {
+  opacity: 1;
+}
+
 .tab__name {
   min-width: 0;
+}
+
+/* A diff tab is a view, not a document; the dashed underline says so. */
+.tab--diff .tab__name {
+  font-style: italic;
 }
 
 .tab__close {

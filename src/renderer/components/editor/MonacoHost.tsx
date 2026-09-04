@@ -13,7 +13,7 @@
 
 import { useEffect, useRef } from 'react'
 import type { GroupId } from '../../state/editors.js'
-import { getModel, useEditors } from '../../state/editors.js'
+import { getModel, isDiffTab, useEditors } from '../../state/editors.js'
 import { useGit } from '../../state/git.js'
 import { useSettings } from '../../state/settings.js'
 import { setActiveEditor } from '../../commands/registry.js'
@@ -29,7 +29,11 @@ export function MonacoHost({ group }: Props): React.ReactElement {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
   const decorations = useRef<monaco.editor.IEditorDecorationsCollection | null>(null)
 
-  const path = useEditors((s) => s.active[group])
+  const activeTab = useEditors((s) => s.active[group])
+  // A diff tab is rendered by DiffView on top of this editor. Keeping the
+  // previous file's model attached means switching back to it is instant and
+  // keeps its undo history and scroll position.
+  const path = activeTab && isDiffTab(activeTab) ? null : activeTab
   const settings = useSettings((s) => s.values)
   const setActiveGroup = useEditors((s) => s.setActiveGroup)
   const saveViewState = useEditors((s) => s.saveViewState)
@@ -80,7 +84,9 @@ export function MonacoHost({ group }: Props): React.ReactElement {
     }
 
     if (!path) {
-      editor.setModel(null)
+      // Only a genuinely empty group clears the editor. When a diff is the
+      // active tab the previous model stays attached underneath it.
+      if (!activeTab) editor.setModel(null)
       return
     }
 
@@ -92,7 +98,7 @@ export function MonacoHost({ group }: Props): React.ReactElement {
     const stored = useEditors.getState().viewState.get(path)
     if (stored) editor.restoreViewState(stored)
     editor.focus()
-  }, [path, saveViewState])
+  }, [path, activeTab, saveViewState])
 
   // --- apply settings changes without recreating the editor -------------
   useEffect(() => {
@@ -140,25 +146,49 @@ export function MonacoHost({ group }: Props): React.ReactElement {
   return (
     <div className="monaco-host">
       <div ref={container} className="monaco-host__container" />
-      {!path && (
-        <div className="monaco-host__placeholder">
-          <p className="monaco-host__placeholder-title">No file open</p>
-          <ul className="monaco-host__hints">
-            <li>
-              <kbd>Ctrl</kbd> <kbd>P</kbd> Go to file
-            </li>
-            <li>
-              <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>P</kbd> Command palette
-            </li>
-            <li>
-              <kbd>Ctrl</kbd> <kbd>`</kbd> Terminal
-            </li>
-            <li>
-              <kbd>Ctrl</kbd> <kbd>Shift</kbd> <kbd>F</kbd> Search in files
-            </li>
-          </ul>
-        </div>
-      )}
+      {!activeTab && <Welcome />}
+    </div>
+  )
+}
+
+/**
+ * The empty state.
+ *
+ * It does two jobs: teach the four shortcuts that make the editor usable, and
+ * state plainly what this application is -- which for this project is the
+ * whole point, and is otherwise only visible as one small status-bar word.
+ */
+function Welcome(): React.ReactElement {
+  const shortcuts: Array<[string[], string]> = [
+    [['Ctrl', 'P'], 'Go to file'],
+    [['Ctrl', 'Shift', 'P'], 'Command palette'],
+    [['Ctrl', 'Shift', 'F'], 'Search in files'],
+    [['Ctrl', '`'], 'Terminal']
+  ]
+
+  return (
+    <div className="monaco-host__placeholder">
+      <div className="welcome">
+        <h1 className="welcome__title">AI-Free IDE</h1>
+        <p className="welcome__tagline">
+          No network. No AI. No telemetry.
+          <br />
+          Everything here runs on this machine.
+        </p>
+
+        <dl className="welcome__shortcuts">
+          {shortcuts.map(([keys, label]) => (
+            <div className="welcome__shortcut" key={label}>
+              <dt>
+                {keys.map((key) => (
+                  <kbd key={key}>{key}</kbd>
+                ))}
+              </dt>
+              <dd>{label}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
     </div>
   )
 }

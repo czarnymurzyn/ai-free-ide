@@ -3,6 +3,11 @@
   flex: 1;
   min-height: 0;
   min-width: 0;
+  /* `z-index: 0` (not `auto`) so this becomes a stacking context. Monaco sets
+     high z-indices on its own internals -- the minimap canvas, overlay widgets
+     -- and without a context here those escape and paint over anything layered
+     on top of the editor, such as the diff view. */
+  z-index: 0;
 }
 
 .monaco-host__container {
@@ -13,35 +18,60 @@
 .monaco-host__placeholder {
   position: absolute;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
+  display: grid;
+  place-items: center;
+  padding: 24px;
   background: var(--bg-app);
   color: var(--text-muted);
   pointer-events: none;
 }
 
-.monaco-host__placeholder-title {
+.welcome {
+  max-width: 340px;
+  text-align: center;
+}
+
+.welcome__title {
   margin: 0;
-  font-size: 15px;
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--text-secondary);
 }
 
-.monaco-host__hints {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 8px;
+.welcome__tagline {
+  margin: 8px 0 26px;
   font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--text-muted);
 }
 
-.monaco-host__hints li {
-  display: flex;
+.welcome__shortcuts {
+  margin: 0;
+  display: grid;
+  gap: 9px;
+  /* Keys right-aligned against the gutter, labels left-aligned after it, so
+     both columns read as lists rather than as scattered pairs. */
+  text-align: left;
+}
+
+.welcome__shortcut {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
-  gap: 5px;
+  gap: 14px;
+}
+
+.welcome__shortcut dt {
+  display: flex;
+  justify-content: flex-end;
+  gap: 3px;
+}
+
+.welcome__shortcut dd {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 kbd {

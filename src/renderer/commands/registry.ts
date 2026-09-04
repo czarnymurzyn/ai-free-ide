@@ -7,6 +7,7 @@
  * disagree about what an action does.
  */
 
+import { promptDialog, validateFileName } from '../state/dialogs.js'
 import { useEditors } from '../state/editors.js'
 import { useGit } from '../state/git.js'
 import { useSettings } from '../state/settings.js'
@@ -119,12 +120,26 @@ export const COMMANDS: Command[] = [
     run: async () => {
       const root = useWorkspace.getState().root
       if (!root) return
-      const name = window.prompt('New file name (relative to the workspace root):')
+
+      const name = await promptDialog({
+        title: 'New file',
+        message: 'Relative to the workspace root. Intermediate folders are created as needed.',
+        confirmLabel: 'Create',
+        // A path is allowed here (unlike an inline rename), so only the
+        // segments are validated.
+        validate: (value) =>
+          value
+            .split('/')
+            .map((segment) => validateFileName(segment))
+            .find((problem) => problem !== null) ?? null
+      })
       if (!name) return
+
       const path = `${root}/${name}`
       try {
         await window.ide.fs.create(path, 'file')
         await useWorkspace.getState().refresh([path])
+        useWorkspace.getState().scheduleIndexRefresh()
         await useEditors.getState().openFile(path)
       } catch (err) {
         useUi.getState().notify((err as Error).message, 'error')
@@ -390,6 +405,18 @@ export const COMMANDS: Command[] = [
         .status.changes.filter((c) => c.staged)
         .map((c) => c.path)
       void useGit.getState().unstage(paths)
+    }
+  },
+  {
+    id: 'git.openDiff',
+    title: 'Compare Active File with HEAD',
+    category: 'Git',
+    enabled: () => isRepo() && hasEditor(),
+    run: () => {
+      const { active, activeGroup, files, openDiff } = useEditors.getState()
+      const tabId = active[activeGroup]
+      const file = tabId ? files.get(tabId) : undefined
+      if (file) openDiff(file.sourcePath)
     }
   },
   {

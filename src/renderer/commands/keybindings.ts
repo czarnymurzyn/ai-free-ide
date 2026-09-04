@@ -96,6 +96,11 @@ export function installKeybindings(): () => void {
     // Escape closes any overlay; handled by the overlay components.
     if (chord === 'Escape') return
 
+    // A modal dialog or a context menu owns the keyboard while it is open.
+    // Otherwise Ctrl+P would open quick-open *behind* the dialog asking you to
+    // confirm something, leaving two things competing for the same keystrokes.
+    if (document.querySelector('.dialog__backdrop, .context-menu')) return
+
     const commandId = BINDINGS.get(chord)
     if (!commandId) return
 

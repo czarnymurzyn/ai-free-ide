@@ -85,9 +85,13 @@ test('replace rewrites the matches on disk', async () => {
   const replaceAll = page.locator('.search-panel__replace-all')
   await expect(replaceAll).toBeEnabled()
 
-  // Confirm the "replace all" dialog rather than letting it block.
-  page.once('dialog', (dialog) => void dialog.accept())
   await replaceAll.click()
+
+  // Confirm in the app's own modal (not window.confirm, which this replaced).
+  const dialog = page.locator('.dialog')
+  await expect(dialog).toBeVisible()
+  await expect(dialog).toContainText('Replace 3 occurrences?')
+  await dialog.getByRole('button', { name: 'Replace All' }).click()
 
   // replaceAll writes the files one at a time, so wait for both rather than
   // assuming the second has landed once the first has.

@@ -1,0 +1,64 @@
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  height: 24px;
+  padding: 0 10px;
+  background: var(--bg-app);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+
+.breadcrumbs::-webkit-scrollbar {
+  height: 0;
+}
+
+.breadcrumbs__group {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  flex-shrink: 0;
+  color: var(--border-strong);
+}
+
+.breadcrumbs__segment {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  flex-shrink: 0;
+}
+
+button.breadcrumbs__segment:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.breadcrumbs__segment--root {
+  font-weight: 500;
+}
+
+.breadcrumbs__segment--file {
+  color: var(--text-secondary);
+  cursor: default;
+}
+
+.breadcrumbs__badge {
+  margin-left: 3px;
+  padding: 0 5px;
+  border-radius: 7px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-size: 9.5px;
+  line-height: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

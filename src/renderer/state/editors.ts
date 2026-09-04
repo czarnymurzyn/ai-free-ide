@@ -11,10 +11,12 @@
 import * as monaco from 'monaco-editor'
 import { create } from 'zustand'
 import { languageIdFor } from '@shared/languages.js'
+import { confirmDialog } from './dialogs.js'
 
 export type GroupId = 'primary' | 'secondary'
 
 export interface OpenFile {
+  /** Tab identity. For a diff this is `diff:<absolute path>`, not the path. */
   path: string
   name: string
   languageId: string
@@ -25,7 +27,22 @@ export interface OpenFile {
   /** Incremented on every change, sent to the language server. */
   version: number
   readOnly: boolean
+  /** A normal editor tab, or a diff against HEAD. */
+  kind: 'file' | 'diff'
+  /** The file on disk. Differs from `path` only for diff tabs. */
+  sourcePath: string
 }
+
+/**
+ * Diff tabs share the tab strip with file tabs, so they need an identity that
+ * cannot collide with a real path -- otherwise opening a diff would steal the
+ * tab of the file it is diffing.
+ */
+const DIFF_PREFIX = 'diff:'
+
+export const diffTabId = (path: string): string => `${DIFF_PREFIX}${path}`
+export const isDiffTab = (tabId: string): boolean => tabId.startsWith(DIFF_PREFIX)
+export const diffSourceOf = (tabId: string): string => tabId.slice(DIFF_PREFIX.length)
 
 interface EditorState {
   files: Map<string, OpenFile>
@@ -37,6 +54,7 @@ interface EditorState {
   viewState: Map<string, monaco.editor.ICodeEditorViewState>
 
   openFile(path: string, group?: GroupId, preview?: boolean): Promise<void>
+  openDiff(path: string, group?: GroupId): void
   closeFile(path: string, group: GroupId): Promise<void>
   closeAll(group?: GroupId): Promise<void>
   setActive(path: string, group: GroupId): void
@@ -93,7 +111,9 @@ export const useEditors = create<EditorState>((set, get) => ({
           mtimeMs: content.mtimeMs,
           eol: content.eol,
           version: 1,
-          readOnly: false
+          readOnly: false,
+          kind: 'file',
+          sourcePath: path
         })
         return { files }
       })
@@ -118,10 +138,56 @@ export const useEditors = create<EditorState>((set, get) => ({
     }))
   },
 
+  /**
+   * Open a diff of `path` against HEAD in its own tab.
+   *
+   * Synchronous: the tab appears immediately and DiffView loads the two sides
+   * itself, so clicking a change in source control never feels like it hung.
+   */
+  openDiff(path, group) {
+    const targetGroup = group ?? get().activeGroup
+    const tabId = diffTabId(path)
+
+    if (get().groups[targetGroup].includes(tabId)) {
+      get().setActive(tabId, targetGroup)
+      return
+    }
+
+    const name = path.split('/').pop() ?? path
+    set((state) => {
+      const files = new Map(state.files)
+      if (!files.has(tabId)) {
+        files.set(tabId, {
+          path: tabId,
+          name: `${name} (diff)`,
+          languageId: languageIdFor(path),
+          dirty: false,
+          mtimeMs: 0,
+          eol: '\n',
+          version: 1,
+          readOnly: true,
+          kind: 'diff',
+          sourcePath: path
+        })
+      }
+      return {
+        files,
+        groups: { ...state.groups, [targetGroup]: [...state.groups[targetGroup], tabId] },
+        active: { ...state.active, [targetGroup]: tabId },
+        activeGroup: targetGroup
+      }
+    })
+  },
+
   async closeFile(path, group) {
     const file = get().files.get(path)
     if (file?.dirty) {
-      const discard = window.confirm(`${file.name} has unsaved changes. Close without saving?`)
+      const discard = await confirmDialog({
+        title: `Save changes to ${file.name}?`,
+        message: 'Your changes will be lost if you close without saving.',
+        confirmLabel: "Don't Save",
+        danger: true
+      })
       if (!discard) return
     }
 
@@ -139,6 +205,20 @@ export const useEditors = create<EditorState>((set, get) => ({
         active: { ...state.active, [group]: nextActive }
       }
     })
+
+    // A diff tab owns no shared model and was never opened with the language
+    // server, so it needs none of the teardown below.
+    if (isDiffTab(path)) {
+      set((state) => {
+        const files = new Map(state.files)
+        files.delete(path)
+        return { files }
+      })
+      if (get().groups.secondary.length === 0 && get().splitVisible) {
+        set({ splitVisible: false, activeGroup: 'primary' })
+      }
+      return
+    }
 
     // Dispose the model only when no group still shows the file.
     const { groups } = get()

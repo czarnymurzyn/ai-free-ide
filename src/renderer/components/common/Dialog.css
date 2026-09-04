@@ -1,0 +1,105 @@
+.dialog__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 18vh;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.dialog {
+  width: min(420px, 90vw);
+  padding: 18px 20px 16px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-popup);
+  animation: dialog-in 110ms ease-out;
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.99);
+  }
+}
+
+.dialog__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dialog__message {
+  margin: 7px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  /* Long paths must wrap rather than widen the dialog. */
+  overflow-wrap: anywhere;
+}
+
+.dialog__input {
+  width: 100%;
+  margin-top: 14px;
+  padding: 6px 9px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+
+.dialog__input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.dialog__error {
+  margin: 6px 0 0;
+  font-size: 11.5px;
+  color: var(--danger);
+}
+
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.dialog__button {
+  min-width: 78px;
+  padding: 6px 14px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 12.5px;
+}
+
+.dialog__button:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.dialog__button--primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: var(--text-inverse);
+  font-weight: 500;
+}
+
+.dialog__button--primary:hover {
+  background: var(--accent-hover);
+  color: var(--text-inverse);
+}
+
+.dialog__button--danger {
+  background: var(--danger);
+}
+
+.dialog__button--danger:hover {
+  background: var(--danger);
+  filter: brightness(1.1);
+  color: #fff;
+}

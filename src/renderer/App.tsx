@@ -8,6 +8,7 @@
 import { useEffect, useRef } from 'react'
 import { installKeybindings } from './commands/keybindings.js'
 import { runCommand } from './commands/registry.js'
+import { DialogHost } from './components/common/Dialog.js'
 import { ActivityBar } from './components/layout/ActivityBar.js'
 import { Panel } from './components/layout/Panel.js'
 import { Sidebar } from './components/layout/Sidebar.js'
@@ -41,6 +42,7 @@ export function App(): React.ReactElement {
       </div>
       <StatusBar />
       <Overlays />
+      <DialogHost />
     </div>
   )
 }

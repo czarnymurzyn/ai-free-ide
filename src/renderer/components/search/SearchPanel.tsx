@@ -5,6 +5,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, ChevronRight } from '../Icons.js'
 import { getActiveEditor } from '../../commands/registry.js'
+import { confirmDialog } from '../../state/dialogs.js'
 import { useEditors } from '../../state/editors.js'
 import { useSearch } from '../../state/search.js'
 import { useUi } from '../../state/ui.js'
@@ -115,9 +116,15 @@ export function SearchPanel(): React.ReactElement {
               disabled={search.results.length === 0}
               onClick={() => {
                 const count = search.results.reduce((n, r) => n + r.matches.length, 0)
-                if (window.confirm(`Replace ${count} occurrence(s) across ${search.results.length} file(s)?`)) {
-                  void search.replaceAll()
-                }
+                const files = search.results.length
+                void confirmDialog({
+                  title: `Replace ${count} occurrence${count === 1 ? '' : 's'}?`,
+                  message: `Across ${files} file${files === 1 ? '' : 's'}. The files are written directly, so use undo in each editor or your version control to reverse this.`,
+                  confirmLabel: 'Replace All',
+                  danger: true
+                }).then((ok) => {
+                  if (ok) void search.replaceAll()
+                })
               }}
             >
               All

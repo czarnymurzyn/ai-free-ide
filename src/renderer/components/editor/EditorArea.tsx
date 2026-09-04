@@ -1,9 +1,15 @@
 /**
- * The editor region: one or two groups, each with its own tab bar.
+ * The editor region: one or two groups, each with a tab strip, breadcrumbs and
+ * either a text editor or a diff.
  */
 
+import { useState } from 'react'
+import { FileIcon } from '../FileIcon.js'
 import { CloseIcon, SplitIcon } from '../Icons.js'
+import { ContextMenu, useContextMenu, type MenuEntry } from '../common/ContextMenu.js'
 import { useEditors, type GroupId } from '../../state/editors.js'
+import { Breadcrumbs } from './Breadcrumbs.js'
+import { DiffView } from './DiffView.js'
 import './EditorArea.css'
 import { MonacoHost } from './MonacoHost.js'
 
@@ -30,6 +36,53 @@ function EditorGroup({ group }: { group: GroupId }): React.ReactElement {
   const files = useEditors((s) => s.files)
   const { setActive, closeFile, toggleSplit } = useEditors()
 
+  const [menuTab, setMenuTab] = useState<string | null>(null)
+  const menu = useContextMenu()
+
+  const activeFile = active ? files.get(active) : undefined
+  const showingDiff = activeFile?.kind === 'diff'
+
+  const tabMenu = (tabId: string): MenuEntry[] => [
+    { id: 'close', label: 'Close', hint: 'Ctrl+W', run: () => void closeFile(tabId, group) },
+    {
+      id: 'close-others',
+      label: 'Close Others',
+      disabled: paths.length < 2,
+      run: () => {
+        for (const other of paths.filter((p) => p !== tabId)) void closeFile(other, group)
+      }
+    },
+    {
+      id: 'close-right',
+      label: 'Close to the Right',
+      disabled: paths.indexOf(tabId) === paths.length - 1,
+      run: () => {
+        for (const other of paths.slice(paths.indexOf(tabId) + 1)) void closeFile(other, group)
+      }
+    },
+    {
+      id: 'close-all',
+      label: 'Close All',
+      run: () => {
+        for (const other of [...paths]) void closeFile(other, group)
+      }
+    },
+    { separator: true },
+    {
+      id: 'copy-path',
+      label: 'Copy Path',
+      run: () => {
+        const file = files.get(tabId)
+        if (file) void navigator.clipboard.writeText(file.sourcePath)
+      }
+    },
+    {
+      id: 'split',
+      label: group === 'primary' ? 'Open to the Side' : 'Close Split',
+      run: toggleSplit
+    }
+  ]
+
   return (
     <section
       className={`editor-group${activeGroup === group ? ' editor-group--focused' : ''}`}
@@ -37,27 +90,38 @@ function EditorGroup({ group }: { group: GroupId }): React.ReactElement {
     >
       <div className="tab-bar" role="tablist">
         <div className="tab-bar__tabs">
-          {paths.map((path) => {
-            const file = files.get(path)
+          {paths.map((tabId) => {
+            const file = files.get(tabId)
             if (!file) return null
 
             return (
               <div
-                key={path}
+                key={tabId}
                 role="tab"
                 tabIndex={0}
-                aria-selected={active === path}
-                className={`tab${active === path ? ' tab--active' : ''}`}
-                onClick={() => setActive(path, group)}
+                aria-selected={active === tabId}
+                className={
+                  'tab' +
+                  (active === tabId ? ' tab--active' : '') +
+                  (file.kind === 'diff' ? ' tab--diff' : '')
+                }
+                onClick={() => setActive(tabId, group)}
                 onKeyDown={(event) => {
-                  if (event.key === 'Enter') setActive(path, group)
+                  if (event.key === 'Enter') setActive(tabId, group)
                 }}
                 onAuxClick={(event) => {
                   // Middle-click closes, as in every browser and editor.
-                  if (event.button === 1) void closeFile(path, group)
+                  if (event.button === 1) void closeFile(tabId, group)
                 }}
-                title={path}
+                onContextMenu={(event) => {
+                  setMenuTab(tabId)
+                  menu.open(event)
+                }}
+                title={file.sourcePath}
               >
+                <span className="tab__icon">
+                  <FileIcon name={file.name.replace(/ \(diff\)$/, '')} size={13} />
+                </span>
                 <span className="tab__name truncate">{file.name}</span>
                 <button
                   type="button"
@@ -65,7 +129,7 @@ function EditorGroup({ group }: { group: GroupId }): React.ReactElement {
                   aria-label={file.dirty ? `Close ${file.name} (unsaved)` : `Close ${file.name}`}
                   onClick={(event) => {
                     event.stopPropagation()
-                    void closeFile(path, group)
+                    void closeFile(tabId, group)
                   }}
                 >
                   {file.dirty ? <span className="tab__dot" /> : <CloseIcon size={12} />}
@@ -88,7 +152,18 @@ function EditorGroup({ group }: { group: GroupId }): React.ReactElement {
         )}
       </div>
 
-      <MonacoHost group={group} />
+      <Breadcrumbs group={group} />
+
+      <div className="editor-group__body">
+        {/* The text editor stays mounted behind a diff so that returning to a
+            file tab keeps its undo history, scroll position and folding. */}
+        <MonacoHost group={group} />
+        {showingDiff && activeFile && <DiffView path={activeFile.sourcePath} />}
+      </div>
+
+      {menu.position && menuTab && (
+        <ContextMenu entries={tabMenu(menuTab)} position={menu.position} onDismiss={menu.close} />
+      )}
     </section>
   )
 }

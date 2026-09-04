@@ -10,6 +10,7 @@ import { useEffect } from 'react'
 import type { GitChange } from '@shared/types.js'
 import { DiscardIcon, RefreshIcon, StageIcon, UnstageIcon } from '../Icons.js'
 import { partitionChanges, useGit } from '../../state/git.js'
+import { confirmDialog } from '../../state/dialogs.js'
 import { useEditors } from '../../state/editors.js'
 import { useUi } from '../../state/ui.js'
 import { useWorkspace } from '../../state/workspace.js'
@@ -19,6 +20,7 @@ export function SourceControlPanel(): React.ReactElement {
   const git = useGit()
   const root = useWorkspace((s) => s.root)
   const openFile = useEditors((s) => s.openFile)
+  const openDiff = useEditors((s) => s.openDiff)
   const setOverlay = useUi((s) => s.setOverlay)
 
   useEffect(() => {
@@ -47,6 +49,20 @@ export function SourceControlPanel(): React.ReactElement {
 
   const { staged, unstaged } = partitionChanges(git.status.changes)
   const absolute = (change: GitChange): string => `${root}/${change.path}`
+
+  /**
+   * Clicking a change shows what changed, not just the file -- seeing the diff
+   * is the reason you clicked. An untracked file has no committed side to
+   * compare against, so it opens normally.
+   */
+  const reveal = (change: GitChange): void => {
+    const path = absolute(change)
+    if (change.status === 'untracked' || change.status === 'added') {
+      void openFile(path)
+    } else {
+      openDiff(path)
+    }
+  }
 
   return (
     <div className="scm">
@@ -115,7 +131,7 @@ export function SourceControlPanel(): React.ReactElement {
           title="Staged Changes"
           changes={staged}
           emptyLabel="Nothing staged"
-          onOpen={(change) => void openFile(absolute(change))}
+          onOpen={reveal}
           actions={[
             {
               Icon: UnstageIcon,
@@ -134,15 +150,21 @@ export function SourceControlPanel(): React.ReactElement {
           title="Changes"
           changes={unstaged}
           emptyLabel="No changes"
-          onOpen={(change) => void openFile(absolute(change))}
+          onOpen={reveal}
           actions={[
             {
               Icon: DiscardIcon,
               label: 'Discard',
               run: (change) => {
-                if (window.confirm(`Discard all changes to ${change.path}? This cannot be undone.`)) {
-                  void git.discard([change.path])
-                }
+                void confirmDialog({
+                  title: `Discard changes to ${change.path.split('/').pop()}?`,
+                  message:
+                    'The file will be restored to its last committed state. This cannot be undone.',
+                  confirmLabel: 'Discard Changes',
+                  danger: true
+                }).then((ok) => {
+                  if (ok) void git.discard([change.path])
+                })
               }
             },
             {

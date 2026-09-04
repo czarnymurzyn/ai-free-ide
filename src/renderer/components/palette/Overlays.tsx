@@ -5,6 +5,7 @@
 import { useEffect, useState } from 'react'
 import type { AppInfo } from '@shared/ipc-contract.js'
 import { availableCommands, runCommand } from '../../commands/registry.js'
+import { promptDialog } from '../../state/dialogs.js'
 import { useEditors } from '../../state/editors.js'
 import { useGit } from '../../state/git.js'
 import { useUi } from '../../state/ui.js'
@@ -105,8 +106,18 @@ function BranchPicker({ onDismiss }: { onDismiss: () => void }): React.ReactElem
       onAccept={(item) => {
         onDismiss()
         if (item.id === '__create__') {
-          const name = window.prompt('New branch name:')
-          if (name) void createBranch(name.trim())
+          void promptDialog({
+            title: 'New branch',
+            message: 'Created from the current HEAD and checked out.',
+            confirmLabel: 'Create Branch',
+            validate: (value) =>
+              // git's own ref rules, in the ones a person actually hits.
+              /[\s~^:?*[\\]/.test(value) || value.endsWith('.') || value.includes('..')
+                ? 'A branch name cannot contain spaces, "..", or any of ~ ^ : ? * [ \\'
+                : null
+          }).then((name) => {
+            if (name) void createBranch(name)
+          })
           return
         }
         void checkout(item.id)
